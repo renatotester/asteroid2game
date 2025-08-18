@@ -228,4 +228,3 @@ requestAnimationFrame(loop);
 // Estado inicial
 ovScore.textContent='0'; ovLevel.textContent='1';
 overlay.classList.remove('hidden');
-
