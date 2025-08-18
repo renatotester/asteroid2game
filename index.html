@@ -5,11 +5,12 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <meta name="theme-color" content="#0a0f14"/>
   <title>ASTRO OPS PRO+ • Asteroids-like</title>
-  <link rel="stylesheet" href="styles.css?v=3"/>
-  <style>
-    /* Fallback para garantir que o canvas apareça mesmo se o CSS externo não carregar */
-    #game{min-height:560px; display:block;}
-  </style>
+
+  <!-- CSS externo -->
+  <link rel="stylesheet" href="styles.css?v=5"/>
+
+  <!-- Fallback mínimo para garantir canvas visível mesmo se o CSS não carregar -->
+  <style>#game{min-height:560px;display:block}</style>
 </head>
 <body>
   <noscript><p style="padding:12px;background:#300;color:#fff">Ative o JavaScript para jogar.</p></noscript>
@@ -69,7 +70,7 @@
       </div>
     </div>
 
-    <!-- Touch (mobile) -->
+    <!-- Controles Touch (mobile) -->
     <div class="touchUI" id="touchUI" aria-hidden="true">
       <div class="stick" id="stick"><div class="nub"></div></div>
       <div class="buttons">
@@ -80,14 +81,16 @@
     </div>
   </div>
 
-  <!-- Boot check: se der erro de JS, mostra na tela -->
+  <!-- Mostra mensagem se algum erro JS escapar -->
   <script>
     window.addEventListener('error', (e)=>{
-      const el=document.getElementById('bootErr');
-      if(el){ el.style.display='block'; el.textContent='Erro de inicialização: '+ (e.message||e.error||e.filename||'desconhecido'); }
+      const el = document.getElementById('bootErr');
+      if(el){ el.style.display='block'; el.textContent='Erro de inicialização: ' + (e.message||e.error||e.filename||'desconhecido'); }
     });
   </script>
-  <script src="game.js?v=3" defer></script>
+
+  <!-- JS do jogo -->
+  <script src="game.js?v=5" defer></script>
 </body>
 </html>
 
