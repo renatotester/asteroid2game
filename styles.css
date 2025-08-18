@@ -1,6 +1,6 @@
 :root{
   --bg:#0a0f14; --hud:#9bd4ff; --ink:#e4f2ff; --accent:#45ff9c; --muted:#7aa0bd;
-  --crtAlpha: 0; /* 0 a 1 */
+  --crtAlpha: 0;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -36,7 +36,7 @@ body{
   outline:1px solid #0e1a26;
 }
 
-/* CRT ajustável (tecla C ou slider) */
+/* CRT */
 body.crt::after{
   content:""; pointer-events:none; position:fixed; inset:0;
   background:
@@ -69,7 +69,7 @@ body.crt::before{
 .stats{display:flex; gap:18px; justify-content:center; margin:8px 0 4px;}
 b{color:#fff}
 
-/* Touch controls */
+/* Touch */
 .touchUI{ position:fixed; inset:auto 0 0 0; padding:10px; display:flex; justify-content:space-between; gap:10px; pointer-events:none; }
 .stick{width:140px; height:140px; border-radius:50%; border:2px solid #244a65; background:#0e1c28b0; position:relative; pointer-events:auto; touch-action:none;}
 .stick .nub{width:56px; height:56px; border-radius:50%; background:#17334a; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);}
@@ -78,11 +78,12 @@ b{color:#fff}
 .tbtn.small{width:64px;height:64px;font-size:20px}
 @media (min-width:980px){ .touchUI{display:none} }
 
-/* ===== Skins ===== */
+/* Skins */
 body.skin-classic{ --bg:#0a0f14; --hud:#9bd4ff; --ink:#e4f2ff; --accent:#45ff9c; }
 body.skin-neon{ --bg:#070012; --hud:#ffbdf9; --ink:#ffeaff; --accent:#00ffd0; }
 body.skin-sunset{ --bg:#1b0d0a; --hud:#ffd1a8; --ink:#fff4eb; --accent:#ff8a4d; }
 body.skin-dark{ --bg:#06080c; --hud:#a8b0c2; --ink:#dbe2f0; --accent:#7be0ff; }
 body.skin-mono{ --bg:#0b0b0b; --hud:#cfcfcf; --ink:#eaeaea; --accent:#b9ff6a; }
+
 
 
