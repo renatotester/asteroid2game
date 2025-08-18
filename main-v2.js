@@ -1,4 +1,4 @@
-/* ASTRO OPS — V2.4 mobile + joystick (ES Modules; auto-start; sem 'last') */
+/* ASTRO OPS — V2.5: mobile + joystick + HUD fix + nave detalhada (ES Modules; sem 'last') */
 const DPR    = Math.max(1, self.devicePixelRatio || 1);
 const root   = document.getElementById('wrap');
 const canvas = document.getElementById('game');
@@ -34,7 +34,12 @@ addEventListener('keydown', e=>{ if(e.key.toLowerCase()==='f'){ e.preventDefault
 const $ = s=>document.querySelector(s);
 const scEl=$('#score'), lvEl=$('#level'), hiEl=$('#hi');
 const overlay=$('#overlay'), ovMsg=$('#ovMsg'), ovScore=$('#ovScore'), ovHi=$('#ovHi'), ovLevel=$('#ovLevel');
+const mScore=$('#mScore'), mLevel=$('#mLevel'), mHi=$('#mHi');
 const startBtn = document.getElementById('startBtn');
+
+function setScore(v){ scEl.textContent=v; mScore.textContent='S: '+v; }
+function setLevel(v){ lvEl.textContent=v; mLevel.textContent='L: '+v; }
+function setHi(v){    hiEl.textContent=v; mHi.textContent='H: '+v; }
 
 /* ---------- Utils ---------- */
 const W=()=>canvas.width, H=()=>canvas.height;
@@ -66,26 +71,24 @@ const sBoom =()=>beep({f:120,t:'triangle',d:.22,v:.3});
 const state={ running:false, paused:false, score:0, level:1, lives:3,
   hi:Number(localStorage.getItem('astroops.v2.hi')||0)
 };
-hiEl.textContent=state.hi; ovHi.textContent=state.hi;
+setHi(state.hi); ovHi.textContent=state.hi;
 
 /* ---------- Entidades ---------- */
 class Ship{
-  constructor(){ this.x=W()/2; this.y=H()/2; this.vx=0; this.vy=0; this.a=-Math.PI/2; this.r=16*DPR; this.cool=0; this.inv=2; this.thr=false; }
+  constructor(){ this.x=W()/2; this.y=H()/2; this.vx=0; this.vy=0; this.a=-Math.PI/2; this.r=18*DPR; this.cool=0; this.inv=2; this.thr=false; this.flame=0; }
   update(dt,keys,stick){
-    const rot=3.4, acc=300*DPR, damp=.995;
+    const rot=3.6, acc=320*DPR, damp=.995;
 
-    // Joystick analógico (mobile) tem prioridade
     if(stick.active){
       const ang = Math.atan2(stick.dy, stick.dx);
       this.a = ang;
-      this.thr = stick.mag > 0.18; // limiar para começar a acelerar
+      this.thr = stick.mag > 0.18;
       if(this.thr){
         const power = Math.min(1, stick.mag);
         this.vx += Math.cos(this.a)*acc*power*dt;
         this.vy += Math.sin(this.a)*acc*power*dt;
       }
     } else {
-      // Teclado (desktop)
       if(keys.left)  this.a -= rot*dt;
       if(keys.right) this.a += rot*dt;
       this.thr = keys.up;
@@ -97,23 +100,91 @@ class Ship{
 
     this.cool-=dt; if((keys.fire) && this.cool<=0){ this.shoot(); this.cool=.18; }
     if(this.inv>0) this.inv-=dt;
+
+    // animação da chama
+    this.flame = this.thr ? Math.min(1, this.flame + dt*8) : Math.max(0, this.flame - dt*10);
   }
   shoot(){
-    const sp=700*DPR;
-    bullets.push(new Bullet(this.x+Math.cos(this.a)*this.r, this.y+Math.sin(this.a)*this.r, this.vx+Math.cos(this.a)*sp, this.vy+Math.sin(this.a)*sp));
+    const sp=720*DPR;
+    bullets.push(new Bullet(this.x+Math.cos(this.a)*(this.r-2*DPR), this.y+Math.sin(this.a)*(this.r-2*DPR),
+                            this.vx+Math.cos(this.a)*sp, this.vy+Math.sin(this.a)*sp));
     sShoot();
   }
   draw(){
+    ctx.save();
+    ctx.translate(this.x,this.y); ctx.rotate(this.a);
+
+    const s=DPR;
     const blink=this.inv>0 && Math.floor(this.inv*10)%2===0;
-    ctx.save(); ctx.translate(this.x,this.y); ctx.rotate(this.a); ctx.lineWidth=2*DPR;
-    ctx.strokeStyle=blink?'rgba(179,243,255,.5)':'#b3f3ff';
+    const bodyStroke = blink ? 'rgba(179,243,255,.55)' : '#bfeaff';
+
+    // Corpo (fuselagem) com leve preenchimento
+    ctx.lineWidth=2*s; ctx.strokeStyle=bodyStroke; ctx.fillStyle='rgba(130,190,255,0.08)';
     ctx.beginPath();
-    ctx.moveTo(18*DPR,0); ctx.lineTo(-14*DPR,11*DPR); ctx.lineTo(-8*DPR,0); ctx.lineTo(-14*DPR,-11*DPR); ctx.closePath(); ctx.stroke();
-    if(this.thr && !blink){ ctx.strokeStyle='#45ff9c'; ctx.beginPath(); ctx.moveTo(-14*DPR,6*DPR); ctx.lineTo(-24*DPR,0); ctx.lineTo(-14*DPR,-6*DPR); ctx.stroke(); }
+    ctx.moveTo(20*s, 0);
+    ctx.lineTo(-10*s, 11*s);
+    ctx.lineTo(-2*s, 5*s);
+    ctx.lineTo(-6*s, 0);
+    ctx.lineTo(-2*s, -5*s);
+    ctx.lineTo(-10*s, -11*s);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+
+    // Asas detalhadas
+    ctx.beginPath();
+    ctx.moveTo(-4*s, 0);
+    ctx.lineTo(-12*s, 7*s);
+    ctx.lineTo(-14*s, 4*s);
+    ctx.lineTo(-8*s, 0);
+    ctx.lineTo(-14*s,-4*s);
+    ctx.lineTo(-12*s,-7*s);
+    ctx.closePath();
+    ctx.fillStyle='rgba(120,170,240,0.10)';
+    ctx.fill(); ctx.stroke();
+
+    // Cockpit (cúpula) com gradiente
+    const g=ctx.createRadialGradient(6*s,-2*s,1*s, 6*s,-2*s,6*s);
+    g.addColorStop(0,'rgba(180,230,255,.9)');
+    g.addColorStop(1,'rgba(80,150,220,.15)');
+    ctx.fillStyle=g;
+    ctx.beginPath();
+    ctx.ellipse(6*s,-2*s,6*s,4*s,0,0,Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle='rgba(200,240,255,.6)';
+    ctx.stroke();
+
+    // Luzes nas pontas das asas
+    ctx.fillStyle='#74f8b9';
+    ctx.beginPath(); ctx.arc(-12*s, 9*s, 1.6*s, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle='#ffd67a';
+    ctx.beginPath(); ctx.arc(-12*s,-9*s, 1.6*s, 0, Math.PI*2); ctx.fill();
+
+    // Exaustor + chama animada
+    if(this.flame>0 && !blink){
+      const f=this.flame;
+      const len = (10 + Math.random()*8)*s*f;
+      ctx.strokeStyle='#45ff9c';
+      ctx.lineWidth=1.8*s;
+      ctx.beginPath();
+      ctx.moveTo(-12*s, 4*s);
+      ctx.lineTo(-12*s - len, 0);
+      ctx.lineTo(-12*s,-4*s);
+      ctx.stroke();
+
+      // brilho
+      ctx.strokeStyle='rgba(69,255,156,.35)';
+      ctx.lineWidth=3.5*s;
+      ctx.beginPath();
+      ctx.moveTo(-12*s, 3*s);
+      ctx.lineTo(-12*s - len*0.7, 0);
+      ctx.lineTo(-12*s,-3*s);
+      ctx.stroke();
+    }
+
     ctx.restore();
   }
 }
-class Bullet{ constructor(x,y,vx,vy){ this.x=x; this.y=y; this.vx=vx; this.vy=vy; this.r=2.5*DPR; this.life=.9; }
+class Bullet{ constructor(x,y,vx,vy){ this.x=x; this.y=y; this.vx=vx; this.vy=vy; this.r=2.6*DPR; this.life=.9; }
   update(dt){ this.life-=dt; this.x=wrap(this.x+this.vx*dt,W()); this.y=wrap(this.y+this.vy*dt,H()); }
   draw(){ ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fill(); } }
 class Rock{
@@ -228,15 +299,14 @@ function spawnLevel(){
 }
 function startGame(){
   state.score=0; state.level=1; state.lives=3;
-  scEl.textContent=0; lvEl.textContent=1;
+  setScore(0); setLevel(1);
   ship=new Ship(); spawnLevel();
   overlay.classList.add('hidden'); state.running=true; state.paused=false;
   canvas.focus({preventScroll:true});
 }
 function gameOver(){
   state.running=false;
-  if(state.score>state.hi){ state.hi=state.score; localStorage.setItem('astroops.v2.hi',state.hi); }
-  hiEl.textContent=state.hi;
+  if(state.score>state.hi){ state.hi=state.score; localStorage.setItem('astroops.v2.hi',state.hi); setHi(state.hi); }
   ovScore.textContent=state.score; ovHi.textContent=state.hi; ovLevel.textContent=state.level;
   ovMsg.innerHTML='GAME OVER — Toque/Click/Tecla para reiniciar';
   overlay.classList.remove('hidden');
@@ -265,7 +335,9 @@ function update(dt){
       if(dist2(r,b)<(r.r+b.r)**2){
         bullets.splice(j,1); sBoom();
         if(r.s>1) r.split(); rocks.splice(i,1);
-        state.score+=(r.s===3?60:r.s===2?90:140); scEl.textContent=state.score; break;
+        state.score+=(r.s===3?60:r.s===2?90:140);
+        setScore(state.score);
+        break;
       }
     }
   }
@@ -280,7 +352,7 @@ function update(dt){
     }
   }
   // fim de nível
-  if(rocks.length===0){ state.level++; lvEl.textContent=state.level; spawnLevel(); }
+  if(rocks.length===0){ state.level++; setLevel(state.level); spawnLevel(); }
 }
 function render(){
   ctx.fillStyle='#08131d'; ctx.fillRect(0,0,W(),H());
@@ -300,6 +372,6 @@ setTimeout(()=>{ if(!state.running) startGame(); }, 800);
 
 /* Estado inicial */
 ovScore.textContent='0'; ovLevel.textContent='1';
+setScore(0); setLevel(1);
 overlay.classList.remove('hidden');
-
 
