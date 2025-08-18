@@ -1,10 +1,9 @@
-
 <!doctype html>
 <html lang="pt-br">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"/>
-  <title>ASTRO OPS — V2.4 (mobile fix)</title>
+  <title>ASTRO OPS — V2.4 (mobile + joystick)</title>
   <link rel="stylesheet" href="style-v2.css?v=7"/>
   <style>#game{min-height:560px;display:block}</style>
 </head>
@@ -17,12 +16,14 @@
       <button id="btnFS" title="Tela cheia (F)">⛶</button>
     </header>
 
+    <!-- Canvas do jogo -->
     <canvas id="game" tabindex="0" aria-label="Campo de jogo" class="gameCanvas"></canvas>
 
     <footer class="help">
-      ← → ↑ espaço (desktop) • Joystick + 🔥 (mobile)
+      Desktop: ← → ↑ Espaço • Mobile: Joystick + 🔥 • Pausa: P ou ⏯ • Tela cheia: F
     </footer>
 
+    <!-- Overlay inicial / pausa / game over -->
     <div id="overlay" class="overlay">
       <div class="card">
         <h2>ASTRO OPS — V2.4</h2>
@@ -33,22 +34,34 @@
           <div>Level: <b id="ovLevel">1</b></div>
         </div>
         <p><button id="startBtn" class="primary">COMEÇAR</button></p>
-        <p id="bootErr" style="display:none;color:#ffb3b3"></p>
+        <p id="bootErr" class="mini" style="display:none;color:#ffb3b3"></p>
       </div>
     </div>
 
-    <!-- Touch UI -->
-    <div class="touchUI">
-      <div class="stick" id="stick">
+    <!-- Controles touch -->
+    <div class="touchUI" aria-hidden="false">
+      <!-- Joystick analógico -->
+      <div class="stick" id="stick" aria-label="Joystick direcional">
         <div class="nub" id="nub"></div>
       </div>
+      <!-- Ações (direita) -->
       <div class="rightPad">
-        <button class="tbtn big"  id="btnFire">🔥</button>
-        <button class="tbtn small" id="btnPause">⏯</button>
+        <button class="tbtn big"  id="btnFire"  aria-label="Atirar">🔥</button>
+        <button class="tbtn small" id="btnPause" aria-label="Pausar/Retomar">⏯</button>
       </div>
     </div>
   </div>
 
+  <!-- Mostra erros de boot na tela -->
+  <script>
+    addEventListener('error',(e)=>{
+      const el=document.getElementById('bootErr');
+      if(el){ el.style.display='block'; el.textContent='Erro de inicialização: '+(e.message||e.error||''); }
+    }, {capture:true});
+  </script>
+
+  <!-- Apenas este script (ESM). Remova scripts antigos. -->
   <script type="module" src="main-v2.js?v=7"></script>
 </body>
 </html>
+
