@@ -1,8 +1,8 @@
-/* ASTRO OPS — V2 estável (ES Modules, sem 'last') */
-const DPR   = Math.max(1, self.devicePixelRatio || 1);
-const root  = document.getElementById('wrap');
-const canvas= document.getElementById('game');
-const ctx   = canvas.getContext('2d', { alpha:false });
+/* ASTRO OPS — V2.2 mobile (ES Modules, auto-start, touch on-screen, sem 'last') */
+const DPR    = Math.max(1, self.devicePixelRatio || 1);
+const root   = document.getElementById('wrap');
+const canvas = document.getElementById('game');
+const ctx    = canvas.getContext('2d', { alpha:false });
 
 /* ---------- Sizing ---------- */
 function fitCanvas(){
@@ -34,6 +34,7 @@ addEventListener('keydown', e=>{ if(e.key.toLowerCase()==='f'){ e.preventDefault
 const $ = s=>document.querySelector(s);
 const scEl=$('#score'), lvEl=$('#level'), hiEl=$('#hi');
 const overlay=$('#overlay'), ovMsg=$('#ovMsg'), ovScore=$('#ovScore'), ovHi=$('#ovHi'), ovLevel=$('#ovLevel');
+const startBtn = document.getElementById('startBtn');
 
 /* ---------- Utils ---------- */
 const W=()=>canvas.width, H=()=>canvas.height;
@@ -47,8 +48,10 @@ let audio=null, muted=false;
 try{
   const AC=self.AudioContext||self.webkitAudioContext; audio=new AC();
   const unlock=()=>{ if(audio.state==='suspended') audio.resume();
-    removeEventListener('pointerdown',unlock); removeEventListener('keydown',unlock); };
-  addEventListener('pointerdown',unlock,{once:true}); addEventListener('keydown',unlock,{once:true});
+    removeEventListener('pointerdown',unlock); removeEventListener('keydown',unlock); removeEventListener('touchstart',unlock); };
+  addEventListener('pointerdown',unlock,{once:true});
+  addEventListener('keydown',unlock,{once:true});
+  addEventListener('touchstart',unlock,{once:true,passive:true});
 }catch{ muted=true; }
 function beep({f=440,t='square',d=.08,v=.2}={}){ if(muted||!audio) return;
   const t0=audio.currentTime,o=audio.createOscillator(),g=audio.createGain();
@@ -94,11 +97,9 @@ class Ship{
     ctx.restore();
   }
 }
-class Bullet{
-  constructor(x,y,vx,vy){ this.x=x; this.y=y; this.vx=vx; this.vy=vy; this.r=2.5*DPR; this.life=.9; }
+class Bullet{ constructor(x,y,vx,vy){ this.x=x; this.y=y; this.vx=vx; this.vy=vy; this.r=2.5*DPR; this.life=.9; }
   update(dt){ this.life-=dt; this.x=wrap(this.x+this.vx*dt,W()); this.y=wrap(this.y+this.vy*dt,H()); }
-  draw(){ ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fill(); }
-}
+  draw(){ ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fill(); } }
 class Rock{
   constructor(x,y,size=3){
     this.x=x; this.y=y; this.s=size;
@@ -114,9 +115,9 @@ class Rock{
     const p=this.poly; ctx.beginPath(); ctx.moveTo(p[0].x,p[0].y); for(let i=1;i<p.length;i++) ctx.lineTo(p[i].x,p[i].y); ctx.closePath(); ctx.stroke(); ctx.restore(); }
 }
 
-/* ---------- Entrada ---------- */
+/* ---------- Entrada (teclado + touch) ---------- */
 const keys={left:false,right:false,up:false,fire:false};
-addEventListener('keydown',e=>{
+function onKeyDown(e){
   const k=e.key.toLowerCase();
   if(['arrowleft','arrowright','arrowup',' '].includes(e.key)) e.preventDefault();
   if(k==='arrowleft') keys.left=true;
@@ -124,17 +125,44 @@ addEventListener('keydown',e=>{
   if(k==='arrowup')   keys.up=true;
   if(k===' ')         keys.fire=true;
   if(k==='p')         togglePause();
-  if(k==='r' && !state.running) startGame();
-  if((k===' '||k==='enter') && !state.running) startGame();
-});
-addEventListener('keyup',e=>{
+  if(!state.running && (k===' '||k==='enter'||k==='r')) startGame();
+}
+function onKeyUp(e){
   const k=e.key.toLowerCase();
   if(k==='arrowleft') keys.left=false;
   if(k==='arrowright')keys.right=false;
   if(k==='arrowup')   keys.up=false;
   if(k===' ')         keys.fire=false;
-});
+}
+addEventListener('keydown', onKeyDown);
+addEventListener('keyup',   onKeyUp);
+addEventListener('pointerdown', ()=>{ if(!state.running) startGame(); }, {passive:true});
+addEventListener('touchstart',  ()=>{ if(!state.running) startGame(); }, {passive:true});
 overlay.addEventListener('click',()=>{ if(!state.running) startGame(); });
+startBtn?.addEventListener('click', ()=>{ if(!state.running) startGame(); });
+
+/* --- Touch on-screen buttons --- */
+const tLeft  = document.getElementById('btnLeft');
+const tRight = document.getElementById('btnRight');
+const tThrust= document.getElementById('btnThrust');
+const tFire  = document.getElementById('btnFire');
+const tPause = document.getElementById('btnPause');
+
+/* Suporte multitouch: mapeia pointerId -> ação */
+const activePointers = new Map();
+function bindHold(btn, setKey, keyName){
+  const down = (ev)=>{ ev.preventDefault(); activePointers.set(ev.pointerId||'mouse', keyName); setKey(true); };
+  const up   = (ev)=>{ ev.preventDefault(); const id=ev.pointerId||'mouse'; const was=activePointers.get(id); activePointers.delete(id); if(was===keyName) setKey(false); };
+  btn.addEventListener('pointerdown', down);
+  btn.addEventListener('pointerup',   up);
+  btn.addEventListener('pointercancel', up);
+  btn.addEventListener('pointerleave',  up);
+}
+if(tLeft)  bindHold(tLeft,  v=>keys.left  =v, 'left');
+if(tRight) bindHold(tRight, v=>keys.right =v, 'right');
+if(tThrust)bindHold(tThrust,v=>keys.up    =v, 'up');
+if(tFire)  bindHold(tFire,  v=>keys.fire  =v, 'fire');
+if(tPause) tPause.addEventListener('pointerdown', ev=>{ ev.preventDefault(); togglePause(); });
 
 /* ---------- Jogo ---------- */
 let ship=null;
@@ -167,7 +195,7 @@ function gameOver(){
 function togglePause(){
   if(!state.running) return;
   state.paused=!state.paused;
-  ovMsg.textContent='PAUSA — Pressione P para continuar';
+  ovMsg.textContent='PAUSA — Pressione P/⏯ para continuar';
   overlay.classList.toggle('hidden', !state.paused);
 }
 
@@ -208,14 +236,7 @@ function update(dt){
 function render(){
   ctx.fillStyle='#08131d'; ctx.fillRect(0,0,W(),H());
   ctx.fillStyle='#87b2d0'; for(const s of stars){ ctx.fillRect((s.x*W())|0,(s.y*H())|0,(1.2*s.z)*DPR,(1.2*s.z)*DPR); }
-  rocks.forEach(r=>r.draw()); bullets.forEach(b=>b.draw()); ship?.draw?.();
-  // vidas
-  ctx.save(); ctx.translate(12*DPR,14*DPR);
-  for(let i=0;i<Math.max(0,state.lives);i++){
-    ctx.save(); ctx.translate(i*20*DPR,0); ctx.strokeStyle='#45ff9c'; ctx.lineWidth=2*DPR;
-    ctx.beginPath(); ctx.moveTo(10*DPR,0); ctx.lineTo(-8*DPR,7*DPR); ctx.lineTo(-4*DPR,0); ctx.lineTo(-8*DPR,-7*DPR); ctx.closePath(); ctx.stroke(); ctx.restore();
-  }
-  ctx.restore();
+  rocks.forEach(r=>r.draw()); bullets.forEach(b=>b.draw()); if(ship) ship.draw();
 }
 function loop(now){
   const dt=Math.min(.05,(now-prevTime)/1000); prevTime=now;
@@ -225,6 +246,9 @@ function loop(now){
 }
 requestAnimationFrame(loop);
 
-// Estado inicial
+/* ---------- Auto-start ---------- */
+setTimeout(()=>{ if(!state.running) startGame(); }, 800);
+
+/* Estado inicial */
 ovScore.textContent='0'; ovLevel.textContent='1';
 overlay.classList.remove('hidden');
