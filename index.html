@@ -1,10 +1,11 @@
+
 <!doctype html>
 <html lang="pt-br">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"/>
-  <title>ASTRO OPS — V2.2 (mobile)</title>
-  <link rel="stylesheet" href="style-v2.css?v=5"/>
+  <title>ASTRO OPS — V2.4 (mobile fix)</title>
+  <link rel="stylesheet" href="style-v2.css?v=7"/>
   <style>#game{min-height:560px;display:block}</style>
 </head>
 <body>
@@ -16,52 +17,38 @@
       <button id="btnFS" title="Tela cheia (F)">⛶</button>
     </header>
 
-    <!-- Canvas do jogo -->
-    <canvas id="game" tabindex="0" aria-label="Campo de jogo" class="gameCanvas" touch-action="none"></canvas>
+    <canvas id="game" tabindex="0" aria-label="Campo de jogo" class="gameCanvas"></canvas>
 
     <footer class="help">
-      ← → girar • ↑ acelerar • Espaço atirar • P pausa • R reiniciar • F tela cheia
+      ← → ↑ espaço (desktop) • Joystick + 🔥 (mobile)
     </footer>
 
-    <!-- Overlay inicial / pausa / game over -->
     <div id="overlay" class="overlay">
       <div class="card">
-        <h2>ASTRO OPS — V2.2 (mobile)</h2>
-        <p id="ovMsg">Pressione <b>Espaço</b>, <b>Enter</b>, <b>Clique</b> ou <b>Toque</b> para começar</p>
+        <h2>ASTRO OPS — V2.4</h2>
+        <p id="ovMsg">Toque/Click/Tecla para começar</p>
         <div class="stats">
           <div>Score: <b id="ovScore">0</b></div>
           <div>Hi: <b id="ovHi">0</b></div>
           <div>Level: <b id="ovLevel">1</b></div>
         </div>
-        <p class="mini"><button id="startBtn" class="primary">COMEÇAR</button></p>
-        <p id="bootErr" class="mini" style="display:none;color:#ffb3b3"></p>
+        <p><button id="startBtn" class="primary">COMEÇAR</button></p>
+        <p id="bootErr" style="display:none;color:#ffb3b3"></p>
       </div>
     </div>
 
-    <!-- Controles touch (somem no desktop largo) -->
-    <div class="touchUI" aria-hidden="false">
-      <div class="leftPad">
-        <button class="tbtn" id="btnLeft"  aria-label="Girar para a esquerda">⟲</button>
-        <button class="tbtn" id="btnRight" aria-label="Girar para a direita">⟳</button>
-        <button class="tbtn wide" id="btnThrust" aria-label="Acelerar">▲</button>
+    <!-- Touch UI -->
+    <div class="touchUI">
+      <div class="stick" id="stick">
+        <div class="nub" id="nub"></div>
       </div>
       <div class="rightPad">
-        <button class="tbtn big"  id="btnFire"  aria-label="Atirar">🔥</button>
-        <button class="tbtn small" id="btnPause" aria-label="Pausar/Retomar">⏯</button>
+        <button class="tbtn big"  id="btnFire">🔥</button>
+        <button class="tbtn small" id="btnPause">⏯</button>
       </div>
     </div>
   </div>
 
-  <!-- Mostra erros de boot na tela -->
-  <script>
-    addEventListener('error',(e)=>{
-      const el=document.getElementById('bootErr');
-      if(el){ el.style.display='block'; el.textContent='Erro de inicialização: '+(e.message||e.error||''); }
-    }, {capture:true});
-  </script>
-
-  <!-- Apenas este script (ESM). Remova scripts antigos. -->
-  <script type="module" src="main-v2.js?v=5"></script>
+  <script type="module" src="main-v2.js?v=7"></script>
 </body>
 </html>
-
