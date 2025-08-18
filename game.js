@@ -278,7 +278,9 @@
   btnPause?.addEventListener('click',()=>{ paused=!paused; if(paused){ ovTitle.textContent='PAUSA'; ovSub.textContent='Pressione P/⏯ para continuar'; overlay.classList.remove('hidden'); } else overlay.classList.add('hidden'); });
 
   // ===== Loop =====
-  let last=performance.now(), acc=0, fCnt=0, fTimer=0, ufoTimer=8;
+  let last = performance.now();
+  let acc = 0, fCnt = 0, fTimer = 0, ufoTimer = 8;
+
   function update(dtRaw){
     if(!gameRunning || paused) return;
     const dt = dtRaw * timeScale;
@@ -366,15 +368,17 @@
     for(let i=0;i<Math.max(0,lives);i++){
       ctx.save(); ctx.translate(i*20*DPR,0);
       ctx.strokeStyle='var(--accent)'; ctx.lineWidth=2*DPR;
-      ctx.beginPath(); ctx.moveTo(10*DPR,0); ctx.lineTo(-8*DPR,7*DPR); ctx.lineTo(-4*DPR,0); ctx.lineTo(-8*DPR,-7*DPR); ctx.closePath(); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(10*DPR,0); ctx.lineTo(-8*DPR,7*DPR); ctx.lineTo(-4*DPR,0); ctx.lineTo(-8*DPR,-7*DPR); ctx.closePath();
+      ctx.stroke();
       ctx.restore();
     }
     ctx.restore();
   }
 
-  let last=performance.now(), acc=0, fCnt=0, fTimer=0;
   function loop(now){
-    const dt=Math.min(.05,(now-last)/1000); last=now; acc+=dt; fTimer+=dt; fCnt++;
+    const dt=Math.min(.05,(now-last)/1000);
+    last=now; acc+=dt; fTimer+=dt; fCnt++;
     while(acc>1/120){ update(1/120); acc-=1/120; }
     render();
     if(fTimer>=.5){ elFPS.textContent=Math.max(1,Math.round(fCnt/fTimer)); fTimer=0; fCnt=0; }
@@ -424,4 +428,3 @@
   requestAnimationFrame(updTimers);
 
 })();
-
