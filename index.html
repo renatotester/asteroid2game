@@ -1,1 +1,80 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <meta name="theme-color" content="#0a0f14"/>
+  <title>ASTRO OPS PRO+ • Asteroids-like</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <div class="wrap" id="wrap">
+    <header class="hud">
+      <div class="left">
+        <span>Score: <b id="score">0</b></span>
+        <span>Level: <b id="level">1</b></span>
+        <span>Combo: <b id="combo">1x</b></span>
+      </div>
+      <h1>ASTRO OPS PRO+</h1>
+      <div class="right">
+        <div class="timers">
+          <span class="badge" id="tShield" style="display:none">🛡 <b>0</b>s</span>
+          <span class="badge" id="tRapid"  style="display:none">⚡ <b>0</b>s</span>
+          <span class="badge" id="tSlow"   style="display:none">🕓 <b>0</b>s</span>
+        </div>
+
+        <label class="skinLabel">Skin:
+          <select id="skin">
+            <option value="classic">Classic</option>
+            <option value="neon">Neon</option>
+            <option value="sunset">Sunset</option>
+            <option value="dark">Dark</option>
+            <option value="mono">Mono</option>
+          </select>
+        </label>
+
+        <label class="crtLabel">CRT:
+          <input id="crtRange" type="range" min="0" max="1" step="0.05" value="0">
+        </label>
+
+        <span>Hi: <b id="hiScore">0</b></span>
+        <span>FPS: <b id="fps">60</b></span>
+        <button id="btnFS" title="Tela cheia (F)">⛶</button>
+      </div>
+    </header>
+
+    <canvas id="game" tabindex="0" aria-label="Astro Ops PRO+ - campo de jogo"></canvas>
+
+    <footer class="help">
+      ← → girar • ↑ acelerar • Espaço atirar • H hiper-salto • P pausa • M mute • R reiniciar • F tela cheia • C CRT
+    </footer>
+
+    <div id="overlay" class="overlay" role="dialog" aria-modal="true">
+      <div class="card">
+        <h2 id="title">ASTRO OPS PRO+</h2>
+        <p id="subtitle">Pressione <b>Espaço</b>, <b>Enter</b> ou <b>Clique</b> para começar</p>
+        <div class="stats">
+          <div>Score: <b id="ovScore">0</b></div>
+          <div>Hi: <b id="ovHi">0</b></div>
+          <div>Level: <b id="ovLevel">1</b></div>
+        </div>
+        <p class="mini">© Você • Canvas + WebAudio • Touch + Skins + CRT</p>
+      </div>
+    </div>
+
+    <!-- Controles Touch (mobile) -->
+    <div class="touchUI" id="touchUI" aria-hidden="true">
+      <div class="stick" id="stick"><div class="nub"></div></div>
+      <div class="buttons">
+        <button id="btnFire" class="tbtn">🔥</button>
+        <button id="btnHyper" class="tbtn">🌀</button>
+        <button id="btnPause" class="tbtn small">⏯</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Em CodePen, remova esta linha e use o painel JS -->
+  <script src="game.js" defer></script>
+</body>
+</html>
 
