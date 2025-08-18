@@ -1,4 +1,3 @@
-
 /* ASTRO OPS PRO+ — Skins, CRT com intensidade, Touch, Fullscreen, sem ranking */
 (function(){
   // ===== Canvas / DPI =====
@@ -290,11 +289,12 @@
     for(let i=bullets.length-1;i>=0;i--){ bullets[i].update(dt); if(bullets[i].life<=0) bullets.splice(i,1); }
     for(let i=0;i<rocks.length;i++) rocks[i].update(dt);
     for(let i=parts.length-1;i>=0;i--){ parts[i].update(dt); if(parts[i].life<=0) parts.splice(i,1); }
-    for(let i=ufos.length-1;i>=0;i--) ufos[i].update(dt);
+    for(let i=ufos.length-1;i>=0;i--){ ufos[i].update(dt); }
     for(let i=enemyShots.length-1;i>=0;i--){ enemyShots[i].update(dt); if(enemyShots[i].life<=0) enemyShots.splice(i,1); }
     for(let i=powerups.length-1;i>=0;i--){ powerups[i].update(dt); if(powerups[i].life<=0) powerups.splice(i,1); }
 
-    ufoTimer -= dt; if(ufoTimer<=0){ ufos.push(new UFO(level>=6 && Math.random()<0.5?2:1)); ufoTimer=rand(10,16); }
+    ufoTimer -= dt;
+    if(ufoTimer<=0){ ufos.push(new UFO(level>=6 && Math.random()<0.5? 2:1)); ufoTimer = rand(10,16); }
 
     // colisões
     for(let i=rocks.length-1;i>=0;i--){
@@ -305,7 +305,7 @@
           b.life=0;
           if(r.hit()){
             sBoom(); shake=Math.max(shake, (r.s>=4?18:12)*DPR);
-            for(let k=0;k<(r.s>=3?18:12);k++) parts.push(new Part(b.x,b.y,rand(-250,250)*DPR,rand(-250,250)*DPR,rand(.18,.45),'bm'));
+            for(let k=0;k<(r.s>=3? 18:12);k++) parts.push(new Part(b.x,b.y,rand(-250,250)*DPR,rand(-250,250)*DPR,rand(.18,.45),'bm'));
             rocks.splice(i,1); r.split();
             if(Math.random()<0.15) spawnPower(b.x,b.y);
             score += r.s===4? 300 : r.s===3? 60 : r.s===2? 90 : 140;
@@ -319,7 +319,11 @@
       const u=ufos[i];
       for(let j=bullets.length-1;j>=0;j--){
         const b=bullets[j];
-        if(hitCC(b,u)){ b.life=0; if(u.hit()){ ufos.splice(i,1); shake=Math.max(shake,10*DPR); } break; }
+        if(hitCC(b,u)){
+          b.life=0;
+          if(u.hit()){ ufos.splice(i,1); shake=Math.max(shake,10*DPR); }
+          break;
+        }
       }
     }
     for(let i=enemyShots.length-1;i>=0;i--){ if(hitCC(enemyShots[i], ship)){ enemyShots.splice(i,1); ship.hit(); } }
@@ -327,19 +331,22 @@
     for(const u of ufos){ if(hitCC(ship,u)){ if(u.hit()){ ufos.splice(ufos.indexOf(u),1); } ship.hit(); break; } }
     for(let i=powerups.length-1;i>=0;i--){ const p=powerups[i]; if(hitCC(ship,p)){ applyPower(p.type); powerups.splice(i,1); } }
 
+    // fim de nível
     if(rocks.length===0 && enemyShots.length===0){
       level++; elLevel.textContent=level;
       if(level%5===0) lives=Math.min(6,lives+1);
       spawnLevel();
     }
 
+    // combo e efeitos
     comboTimer -= dt; if(comboTimer<=0 && combo>1){ combo=Math.max(1, combo-1); comboTimer=2.5; elCombo.textContent=combo+'x'; }
     if(timeScale<1){ timeScale=lerp(timeScale,1,dt*0.6); if(Math.abs(timeScale-1)<0.01) timeScale=1; }
     if(shake>0){ shake*=0.9; const ang=Math.random()*Math.PI*2; shakeX=Math.cos(ang)*shake; shakeY=Math.sin(ang)*shake; } else { shakeX=shakeY=0; }
   }
+
   function render(){
     ctx.clearRect(0,0,W(),H());
-    // parallax
+    // fundo parallax
     ctx.save(); ctx.globalAlpha=0.25; ctx.fillStyle='#89b7d3';
     for(const s of stars){ const x=((s.x*W())|0)+shakeX*0.2, y=((s.y*H())|0)+shakeY*0.2; ctx.fillRect(x,y,(1.2*s.z)*DPR,(1.2*s.z)*DPR); }
     ctx.restore();
@@ -364,8 +371,15 @@
     }
     ctx.restore();
   }
+
   let last=performance.now(), acc=0, fCnt=0, fTimer=0;
-  function loop(now){ const dt=Math.min(.05,(now-last)/1000); last=now; acc+=dt; fTimer+=dt; fCnt++; while(acc>1/120){ update(1/120); acc-=1/120; } render(); if(fTimer>=.5){ elFPS.textContent=Math.max(1,Math.round(fCnt/fTimer)); fTimer=0; fCnt=0; } requestAnimationFrame(loop); }
+  function loop(now){
+    const dt=Math.min(.05,(now-last)/1000); last=now; acc+=dt; fTimer+=dt; fCnt++;
+    while(acc>1/120){ update(1/120); acc-=1/120; }
+    render();
+    if(fTimer>=.5){ elFPS.textContent=Math.max(1,Math.round(fCnt/fTimer)); fTimer=0; fCnt=0; }
+    requestAnimationFrame(loop);
+  }
   requestAnimationFrame(loop);
 
   // ===== Flow =====
@@ -399,4 +413,15 @@
     if(k==='m'){ muted=!muted; }
   });
 
+  // Timers HUD
+  function updTimers(){
+    const show = (el, val)=>{ if(!el) return; if(val>0){ el.style.display='inline-block'; el.querySelector('b').textContent = Math.ceil(val); } else el.style.display='none'; };
+    show(tShield, ship?.shield||0);
+    show(tRapid,  ship?.rapid||0);
+    show(tSlow,   timeScale<1 ? 3 : 0);
+    requestAnimationFrame(updTimers);
+  }
+  requestAnimationFrame(updTimers);
+
 })();
+
