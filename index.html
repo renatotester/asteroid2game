@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="pt-br">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>ASTRO OPS — V2</title>
-  <link rel="stylesheet" href="styles.css?v=2" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>ASTRO OPS — V2 estável</title>
+  <link rel="stylesheet" href="style-v2.css?v=3"/>
   <style>#game{min-height:560px;display:block}</style>
 </head>
 <body>
@@ -36,14 +36,16 @@
     </div>
   </div>
 
-  <!-- Se algum erro JS escapar, mostro no overlay -->
+  <!-- Mostra erros de boot na tela -->
   <script>
     addEventListener('error',(e)=>{
       const el=document.getElementById('bootErr');
       if(el){ el.style.display='block'; el.textContent='Erro de inicialização: '+(e.message||e.error||''); }
     });
   </script>
-  <script src="game.js?v=2" defer></script>
+
+  <!-- IMPORTANTE: apenas este script (ESM). Remova/evite scripts antigos. -->
+  <script type="module" src="main-v2.js?v=3"></script>
 </body>
 </html>
 
