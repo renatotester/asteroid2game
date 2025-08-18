@@ -1,98 +1,52 @@
 <!doctype html>
 <html lang="pt-br">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <meta name="theme-color" content="#0a0f14"/>
-  <title>ASTRO OPS PRO+ • Asteroids-like</title>
-
-  <!-- CSS externo -->
-  <link rel="stylesheet" href="styles.css?v=5"/>
-
-  <!-- Fallback mínimo para garantir canvas visível mesmo se o CSS não carregar -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>ASTRO OPS — V2</title>
+  <link rel="stylesheet" href="styles.css?v=2" />
   <style>#game{min-height:560px;display:block}</style>
 </head>
 <body>
-  <noscript><p style="padding:12px;background:#300;color:#fff">Ative o JavaScript para jogar.</p></noscript>
-
-  <div class="wrap" id="wrap">
+  <div id="wrap" class="wrap">
     <header class="hud">
-      <div class="left">
-        <span>Score: <b id="score">0</b></span>
-        <span>Level: <b id="level">1</b></span>
-        <span>Combo: <b id="combo">1x</b></span>
-      </div>
-      <h1>ASTRO OPS PRO+</h1>
-      <div class="right">
-        <div class="timers">
-          <span class="badge" id="tShield" style="display:none">🛡 <b>0</b>s</span>
-          <span class="badge" id="tRapid"  style="display:none">⚡ <b>0</b>s</span>
-          <span class="badge" id="tSlow"   style="display:none">🕓 <b>0</b>s</span>
-        </div>
-
-        <label class="skinLabel">Skin:
-          <select id="skin">
-            <option value="classic">Classic</option>
-            <option value="neon">Neon</option>
-            <option value="sunset">Sunset</option>
-            <option value="dark">Dark</option>
-            <option value="mono">Mono</option>
-          </select>
-        </label>
-
-        <label class="crtLabel">CRT:
-          <input id="crtRange" type="range" min="0" max="1" step="0.05" value="0">
-        </label>
-
-        <span>Hi: <b id="hiScore">0</b></span>
-        <span>FPS: <b id="fps">60</b></span>
-        <button id="btnFS" title="Tela cheia (F)">⛶</button>
-      </div>
+      <div>Score: <b id="score">0</b></div>
+      <div>Level: <b id="level">1</b></div>
+      <div>Hi: <b id="hi">0</b></div>
+      <button id="btnFS" title="Tela cheia (F)">⛶</button>
     </header>
 
-    <canvas id="game" tabindex="0" aria-label="Astro Ops PRO+ - campo de jogo"></canvas>
+    <canvas id="game" tabindex="0" aria-label="Campo de jogo"></canvas>
 
     <footer class="help">
-      ← → girar • ↑ acelerar • Espaço atirar • H hiper-salto • P pausa • M mute • R reiniciar • F tela cheia • C CRT
+      ← → girar • ↑ acelerar • Espaço atirar • P pausa • R reiniciar • F tela cheia
     </footer>
 
-    <div id="overlay" class="overlay" role="dialog" aria-modal="true">
+    <div id="overlay" class="overlay">
       <div class="card">
-        <h2 id="title">ASTRO OPS PRO+</h2>
-        <p id="subtitle">Pressione <b>Espaço</b>, <b>Enter</b> ou <b>Clique</b> para começar</p>
+        <h2>ASTRO OPS — V2</h2>
+        <p id="ovMsg">Pressione <b>Espaço</b>, <b>Enter</b> ou <b>Clique</b> para começar</p>
         <div class="stats">
           <div>Score: <b id="ovScore">0</b></div>
           <div>Hi: <b id="ovHi">0</b></div>
           <div>Level: <b id="ovLevel">1</b></div>
         </div>
-        <p class="mini">© Você • Canvas + WebAudio • Touch + Skins + CRT</p>
         <p id="bootErr" class="mini" style="display:none;color:#ffb3b3"></p>
-      </div>
-    </div>
-
-    <!-- Controles Touch (mobile) -->
-    <div class="touchUI" id="touchUI" aria-hidden="true">
-      <div class="stick" id="stick"><div class="nub"></div></div>
-      <div class="buttons">
-        <button id="btnFire" class="tbtn">🔥</button>
-        <button id="btnHyper" class="tbtn">🌀</button>
-        <button id="btnPause" class="tbtn small">⏯</button>
       </div>
     </div>
   </div>
 
-  <!-- Mostra mensagem se algum erro JS escapar -->
+  <!-- Se algum erro JS escapar, mostro no overlay -->
   <script>
-    window.addEventListener('error', (e)=>{
-      const el = document.getElementById('bootErr');
-      if(el){ el.style.display='block'; el.textContent='Erro de inicialização: ' + (e.message||e.error||e.filename||'desconhecido'); }
+    addEventListener('error',(e)=>{
+      const el=document.getElementById('bootErr');
+      if(el){ el.style.display='block'; el.textContent='Erro de inicialização: '+(e.message||e.error||''); }
     });
   </script>
-
-  <!-- JS do jogo -->
-  <script src="game.js?v=5" defer></script>
+  <script src="game.js?v=2" defer></script>
 </body>
 </html>
+
 
 
 
