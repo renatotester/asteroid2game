@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"/>
-  <title>ASTRO OPS — V2.4 (mobile + joystick)</title>
-  <link rel="stylesheet" href="style-v2.css?v=7"/>
+  <title>ASTRO OPS — V2.5 (mobile + HUD fix + nave)</title>
+  <link rel="stylesheet" href="style-v2.css?v=8"/>
   <style>#game{min-height:560px;display:block}</style>
 </head>
 <body>
   <div id="wrap" class="wrap">
+    <!-- HUD clássico (topo). Pode sumir em telas muito pequenas, mas mantemos um mini HUD fixo -->
     <header class="hud">
       <div>Score: <b id="score">0</b></div>
       <div>Level: <b id="level">1</b></div>
@@ -16,17 +17,24 @@
       <button id="btnFS" title="Tela cheia (F)">⛶</button>
     </header>
 
-    <!-- Canvas do jogo -->
+    <!-- HUD fixo (fica por cima do jogo e do fullscreen) -->
+    <div id="miniHUD" class="miniHUD" aria-hidden="false">
+      <span id="mScore">S: 0</span>
+      <span id="mLevel">L: 1</span>
+      <span id="mHi">H: 0</span>
+    </div>
+
+    <!-- Canvas -->
     <canvas id="game" tabindex="0" aria-label="Campo de jogo" class="gameCanvas"></canvas>
 
     <footer class="help">
-      Desktop: ← → ↑ Espaço • Mobile: Joystick + 🔥 • Pausa: P ou ⏯ • Tela cheia: F
+      Desktop: ← → ↑ Espaço • Mobile: Joystick + 🔥 • Pausa: P/⏯ • Tela cheia: F
     </footer>
 
-    <!-- Overlay inicial / pausa / game over -->
+    <!-- Overlay -->
     <div id="overlay" class="overlay">
       <div class="card">
-        <h2>ASTRO OPS — V2.4</h2>
+        <h2>ASTRO OPS — V2.5</h2>
         <p id="ovMsg">Toque/Click/Tecla para começar</p>
         <div class="stats">
           <div>Score: <b id="ovScore">0</b></div>
@@ -38,13 +46,13 @@
       </div>
     </div>
 
-    <!-- Controles touch -->
+    <!-- Touch UI -->
     <div class="touchUI" aria-hidden="false">
-      <!-- Joystick analógico -->
+      <!-- Joystick -->
       <div class="stick" id="stick" aria-label="Joystick direcional">
         <div class="nub" id="nub"></div>
       </div>
-      <!-- Ações (direita) -->
+      <!-- Ações -->
       <div class="rightPad">
         <button class="tbtn big"  id="btnFire"  aria-label="Atirar">🔥</button>
         <button class="tbtn small" id="btnPause" aria-label="Pausar/Retomar">⏯</button>
@@ -52,7 +60,7 @@
     </div>
   </div>
 
-  <!-- Mostra erros de boot na tela -->
+  <!-- Mostrar erro de boot -->
   <script>
     addEventListener('error',(e)=>{
       const el=document.getElementById('bootErr');
@@ -60,8 +68,7 @@
     }, {capture:true});
   </script>
 
-  <!-- Apenas este script (ESM). Remova scripts antigos. -->
-  <script type="module" src="main-v2.js?v=7"></script>
+  <!-- Script principal (ES Modules) -->
+  <script type="module" src="main-v2.js?v=8"></script>
 </body>
 </html>
-
